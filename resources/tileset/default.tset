@@ -1,0 +1,33 @@
+[
+    { "file": "tile.png",
+      "offset": [64, 32],
+      "class": "FloorTile",
+      "kwargs": { "walked_renderable": "marked.png" }
+    },
+
+    { "file": "tile.png",
+      "offset": [64, 32],
+      "class": "FloorTile",
+      "kwargs": { "walked_renderable": "marked.png" }
+    },
+
+    { "file": "ice.png",
+      "offset": [64, 54],
+      "class": "IceTile" },
+
+    { "file": "candlestick.png",
+      "offset": [64, 152],
+      "class": "WallTile" },
+
+    { "file": "wall.png",
+      "offset": [64, 216],
+      "class": "WallTile" },
+
+    { "file": "books.png",
+      "offset": [64, 98],
+      "class": "WallTile" },
+
+    { "file": "banner.png",
+      "offset": [64, 177],
+      "class": "WallTile" }
+]
