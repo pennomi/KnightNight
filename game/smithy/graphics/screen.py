@@ -9,6 +9,7 @@ COLOR_BLACK = (0, 0, 0)
 class Screen():
     """The global screen object as the core object of Smithy."""
     _screen = None
+    _camera = Point(0, 0)
 
     def __init__(self, w, h):
         """Creates a screen and inits pygame/android"""
@@ -31,3 +32,12 @@ class Screen():
         every frame.
         """
         pygame.display.flip()
+
+    @property
+    def camera(self):
+        return self._camera
+
+    @camera.setter
+    def camera(self, point):
+        self._camera.x, self._camera.y = point.x, point.y
+

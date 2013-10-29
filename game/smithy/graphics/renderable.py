@@ -3,7 +3,6 @@ more flair, such as animated renderables.
 """
 import pygame
 from game.smithy.graphics.screen import Screen
-from game.smithy.graphics.camera import Camera
 
 
 def memoize_renderable(cls):
@@ -29,7 +28,6 @@ class Renderable:
         self.offset = offset
         self.ignore_cam = ignore_cam
         self._screen = Screen()
-        self._cam = Camera()
         self._frames = frames
         self.frame_duration = frame_duration
         self.frame_counter = 0
@@ -48,7 +46,7 @@ class Renderable:
         # render
         target = p - self.offset
         if not self.ignore_cam:
-            target += self._cam
+            target += Screen().camera
         frame_w = self._image.get_width() / self._frames
         self._screen.blit(self._image.subsurface(
             (self.current_frame * frame_w, 0,

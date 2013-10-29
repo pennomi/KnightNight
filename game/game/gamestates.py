@@ -47,17 +47,17 @@ class Play(GameState):
         if self.mouse.clicked:
             scr = Screen().center * 2
             # restart button
-            if (scr.x - self.level.cam.x - self.mouse.pos.x <= 100 and
-                        self.level.cam.y + self.mouse.pos.y <= 65):
+            if (scr.x - Screen().camera.x - self.mouse.pos.x <= 100 and
+                        Screen().camera.y + self.mouse.pos.y <= 65):
                 self.next = Play(self.filepath)
             # levels button
-            elif (self.level.cam.x + self.mouse.pos.x <= 100 and
-                  self.level.cam.y + self.mouse.pos.y <= 65):
+            elif (Screen().camera.x + self.mouse.pos.x <= 100 and
+                  Screen().camera.y + self.mouse.pos.y <= 65):
                 self.next = LevelPicker()
             else:
                 # pass the win dialogs
                 if self.level.win():
-                    if (Screen().center - self.level.cam - self.mouse.pos).x > 0:
+                    if (Screen().center - Screen().camera - self.mouse.pos).x > 0:
                         self.next = Title()
                     else:
                         self.next = LevelPicker()
@@ -82,7 +82,7 @@ class Title(GameState):
 
     def __init__(self):
         super(Title, self).__init__()
-        smithy.graphics.camera.Camera().set(Point(0, 0))
+        Screen().camera = Point(0, 0)
 
     def logic(self):
         if self.mouse.clicked:
@@ -102,10 +102,10 @@ class LevelPicker(GameState):
 
     def __init__(self):
         super(LevelPicker, self).__init__()
-        smithy.graphics.camera.Camera().set(Point(0, 0))
+        Screen().camera = Point(0, 0)
 
     def logic(self):
-        smithy.graphics.camera.Camera().set(Point(0, 0))
+        Screen().camera = Point(0, 0)
         left = Point(189, 137)
         if self.mouse.clicked:
             normalized = self.mouse.pos - left

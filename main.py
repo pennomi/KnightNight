@@ -27,6 +27,7 @@ import pygame
 # * Remove Android? (Probably)
 # * cx_freeze packaging
 # * Pyglet? 3D?
+# * Remove smithy; maybe pluggable pygame/pyglet backends.
 
 
 def main():

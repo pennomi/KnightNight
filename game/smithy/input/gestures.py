@@ -1,7 +1,7 @@
 """An [Android|desktop]-compatible gesture recognizer layer."""
 import pygame
 from game.smithy.utils import Point, singleton
-from game.smithy.graphics.camera import Camera
+from game.smithy.graphics.screen import Screen
 try:
     import android
 except ImportError:
@@ -19,7 +19,6 @@ class Mouse:
     down = False
     clicked = False
     quit = False
-    cam = Camera()
 
     def __init__(self):
         if android:
@@ -43,8 +42,8 @@ class Mouse:
                 andr_mouse = True
 
         # update position
-        self.pos = Point(MOUSE.get_pos()[0] - self.cam.x,
-                         MOUSE.get_pos()[1] - self.cam.y)
+        self.pos = Point(MOUSE.get_pos()[0] - Screen().camera.x,
+                         MOUSE.get_pos()[1] - Screen().camera.y)
 
         if android:
             self.clicked = andr_mouse
