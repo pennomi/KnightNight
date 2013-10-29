@@ -8,10 +8,7 @@ try:
 except ImportError:
     pass
 # the standard program
-import sys
-
 import pygame
-
 from game.screen import SCREEN
 from game.gestures import Mouse
 from game import gamestates
@@ -50,8 +47,6 @@ def main():
     while True:
         # input
         mouse.update(SCREEN)
-        if mouse.quit:
-            sys.exit()
         # logic
         state.logic(mouse)
         if state.next:
