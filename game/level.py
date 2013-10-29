@@ -1,11 +1,13 @@
 """This module holds all the classes that deal with the level."""
 
-from game.smithy.utils import Point
-from game.smithy.graphics.renderable import Renderable
-from game.smithy.graphics.screen import Screen
-from game.game.tileset import iso_to_screen
 from copy import copy
 import weakref
+
+from game.utils import Point
+from game.renderable import Renderable
+from game.screen import SCREEN
+from game.tileset import iso_to_screen
+
 
 TILE_STEPS = 5
 
@@ -58,7 +60,7 @@ class Knight:
             if not self.move_counter:
                 self.level()._tiles[self.target.x][self.target.y].on_enter(self)
         pos = iso_to_screen(self.pos)
-        Screen().camera = Screen().center - pos
+        SCREEN.camera = SCREEN.center - pos
 
     def render(self):
         """Renders the knight to the screen at his current location."""
@@ -85,7 +87,7 @@ class Level:
                     start_point = Point(i, j)
         # player
         self.knight = Knight(self, start_point)
-        Screen().camera = Screen().center - iso_to_screen(start_point)
+        SCREEN.camera = SCREEN.center - iso_to_screen(start_point)
 
     def tile_clicked(self, tile):
         """The logic that handles what happens when a tile is clicked."""

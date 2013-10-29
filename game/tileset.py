@@ -1,11 +1,13 @@
 """This module holds the Tile and Tileset classes, as well as utility methods
-iso_to_screen and screen_to_iso"""
-
+iso_to_screen and screen_to_iso
+"""
 import json
-from game.smithy.utils import Point
-from game.smithy.graphics.renderable import Renderable
-from game.smithy.graphics.screen import Screen
 from random import randint
+
+from game.renderable import Renderable
+from game.screen import SCREEN
+from game.utils import Point
+
 
 TILE_WIDTH = 128
 TILE_HEIGHT = 64
@@ -13,9 +15,9 @@ TILE_CENTER = Point(TILE_WIDTH/2, TILE_HEIGHT/2)
 
 # constants for quickly calculating screen_to_iso
 TILE_AREA = TILE_HEIGHT * TILE_WIDTH
-S2I_CONST_X = -Screen().center.y * TILE_WIDTH + Screen().center.x * TILE_HEIGHT
-S2I_CONST_Y = -Screen().center.y * TILE_WIDTH - Screen().center.x * TILE_HEIGHT
-
+S2I_CONST_X = -SCREEN.center.y * TILE_WIDTH + SCREEN.center.x * TILE_HEIGHT
+S2I_CONST_Y = -SCREEN.center.y * TILE_WIDTH - SCREEN.center.x * TILE_HEIGHT
+CENTER = SCREEN.center
 
 def screen_to_iso(p):
     """Converts a screen point (px) into a level point (tile)"""
@@ -27,8 +29,8 @@ def screen_to_iso(p):
 
 def iso_to_screen(p):
     """Converts a level point (tile) into a screen point (px)"""
-    return Screen().center + Point((p.y - p.x) * TILE_WIDTH / 2,
-                                   (p.y + p.x) * TILE_HEIGHT / 2)
+    return CENTER + Point((p.y - p.x) * TILE_WIDTH / 2,
+                          (p.y + p.x) * TILE_HEIGHT / 2)
 
 
 class Tile(object):

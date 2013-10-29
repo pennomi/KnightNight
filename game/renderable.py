@@ -2,7 +2,7 @@
 more flair, such as animated renderables.
 """
 import pygame
-from game.smithy.graphics.screen import Screen
+from game.screen import SCREEN
 
 
 def memoize_renderable(cls):
@@ -18,7 +18,7 @@ def memoize_renderable(cls):
         return instances[key]
     return getinstance
 
-
+# TODO: Use __new__ instead?
 @memoize_renderable
 class Renderable:
     """A basic sprite class that handles rendering an image to the screen."""
@@ -27,7 +27,7 @@ class Renderable:
         self._image = pygame.image.load(filepath).convert_alpha()
         self.offset = offset
         self.ignore_cam = ignore_cam
-        self._screen = Screen()
+        self._screen = SCREEN
         self._frames = frames
         self.frame_duration = frame_duration
         self.frame_counter = 0
@@ -46,7 +46,7 @@ class Renderable:
         # render
         target = p - self.offset
         if not self.ignore_cam:
-            target += Screen().camera
+            target += SCREEN.camera
         frame_w = self._image.get_width() / self._frames
         self._screen.blit(self._image.subsurface(
             (self.current_frame * frame_w, 0,

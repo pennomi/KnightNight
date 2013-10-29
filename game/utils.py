@@ -1,12 +1,7 @@
-'''
-Basic primitives that surprisingly aren't available in Python/Pygame
-'''
-
 class Point(object):
-    '''
-    Basic Point class with x and y components.
+    """Basic Point class with x and y components.
     Can construct using iterable or two numbers.
-    '''
+    """
     def __init__(self, *args):
         if len(args) == 1: # iterable
             self.x, self.y = args[0][0], args[0][1]
@@ -32,15 +27,3 @@ class Point(object):
 
     def round(self):
         return Point(int(round(self.x)), int(round(self.y)))
-
-# DECORATORS
-
-def singleton(cls):
-    ''' Decorator. A class factory that ensures only one instance exists. '''
-    instances = {}
-    def getinstance(*args, **kwargs):
-        ''' Return or create the class instance '''
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    return getinstance
