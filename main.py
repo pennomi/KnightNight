@@ -2,12 +2,6 @@
    A game by Thane and Stacey Brimhall
    This file is intended to be run as the main module of the program.
 """
-# for py2exe
-try:
-    import pygame._view
-except ImportError:
-    pass
-# the standard program
 import pygame
 from game.screen import SCREEN
 from game.gestures import Mouse
@@ -16,25 +10,17 @@ from game import gamestates
 
 # TODO: ROADMAP DUE NOVEMBER 2ND
 # * Clean up code
-#   * Levels should be entirely loaded from JSON
-#   * Font rendered FPS and averaged over last second
 #   * Button needs _serious_ work
-# * Animation Code
+# * Animation Code & Art
 #   * Knight idle animation
 # * Sound
-#   * Sound effects: walk, win, lose, selection taps
-# * New gameplay mechanic
+#   * Sound effects: win, lose, selection taps
+# * New gameplay mechanics
 #   * Teleporter squares?
-# * Remove Android? (Probably)
-# * cx_freeze packaging instead of py2exe
 # * Pyglet? 3D?
-# * Remove smithy; maybe pluggable pygame/pyglet backends.
-
 
 def main():
-    """The main game loop. This should be automatically called on Android, and
-    called by running the module on all other systems.
-    """
+    """Launches the game."""
     pygame.mixer.music.load('resources/audio/caketown.mp3')
     pygame.mixer.music.play(-1)  # play forever
 
@@ -58,6 +44,5 @@ def main():
         # wait
         clock.tick(30)
 
-# This isn't run on Android.
 if __name__ == "__main__":
     main()
