@@ -19,6 +19,7 @@ S2I_CONST_X = -SCREEN.center.y * TILE_WIDTH + SCREEN.center.x * TILE_HEIGHT
 S2I_CONST_Y = -SCREEN.center.y * TILE_WIDTH - SCREEN.center.x * TILE_HEIGHT
 CENTER = SCREEN.center
 
+
 def screen_to_iso(p):
     """Converts a screen point (px) into a level point (tile)"""
     # the "y + TILE_HEIGHT/2" is because we anchor tiles by center, not bottom
@@ -39,6 +40,7 @@ class Tile(object):
     _sprite = None
     walkable = True
     prevents_win = False
+    teleporter_color = None
 
     def __init__(self, renderable):
         self._sprite = renderable
@@ -104,6 +106,27 @@ class FloorTile(Tile):
         if self.fall_pos == 100:
             self._sprite = self._alternate
         super(FloorTile, self).render(point)
+
+
+class TeleporterTile(Tile):
+    """A Tile that instantly teleports you to that of its corresponding color.
+    """
+    walkable = True
+    prevents_win = False
+
+    def __init__(self, renderable, teleporter_color=None):
+        super(TeleporterTile, self).__init__(renderable)
+        self.teleporter_color = teleporter_color
+
+    def on_enter(self, knight):
+        super(TeleporterTile, self).on_enter(knight)
+        corresponding_point = None
+        for i, row in enumerate(knight.level()._tiles):
+            for j, tile in enumerate(row):
+                if (tile.teleporter_color == self.teleporter_color and
+                    Point(i, j) != knight.target):
+                    corresponding_point = Point(i, j)
+        knight.teleport(corresponding_point)
 
 
 class Tileset:

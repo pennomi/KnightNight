@@ -2,13 +2,13 @@
     { "file": "tile.png",
       "offset": [64, 32],
       "class": "FloorTile",
-      "kwargs": { "walked_renderable": "marked.png" }
+      "kwargs": {"walked_renderable": "marked.png"}
     },
 
     { "file": "tile.png",
       "offset": [64, 32],
       "class": "FloorTile",
-      "kwargs": { "walked_renderable": "marked.png" }
+      "kwargs": {"walked_renderable": "marked.png"}
     },
 
     { "file": "ice.png",
@@ -29,5 +29,11 @@
 
     { "file": "banner.png",
       "offset": [64, 177],
-      "class": "WallTile" }
+      "class": "WallTile" },
+
+    { "file": "teleporter_blue.png",
+      "offset": [64, 32],
+      "class": "TeleporterTile",
+      "kwargs": {"teleporter_color": "blue"}
+    }
 ]

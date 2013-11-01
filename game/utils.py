@@ -13,6 +13,9 @@ class Point(object):
     def __eq__(self, obj):
         return self.x == obj.x and self.y == obj.y
 
+    def __ne__(self, obj):
+        return not (self.x == obj.x and self.y == obj.y)
+
     def __add__(self, obj):
         return Point(self.x + obj.x, self.y + obj.y)
 

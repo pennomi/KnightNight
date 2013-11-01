@@ -53,6 +53,11 @@ class Knight:
     def slide(self):
         self.move(self.pos + (self.pos - self.prev))
 
+    def teleport(self, target):
+        # TODO: Animate
+        self.pos = target
+        self.target = target
+
     def logic(self):
         if self.move_counter:
             self.move_counter -= 1
