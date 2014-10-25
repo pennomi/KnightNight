@@ -18,6 +18,7 @@ from game import gamestates
 # * New gameplay mechanics
 #   * Teleporter squares?
 # * Pyglet? 3D?
+# * window title
 
 def main():
     """Launches the game."""

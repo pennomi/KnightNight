@@ -95,7 +95,7 @@ class Title(GameState):
 class LevelPicker(GameState):
     """Lets you choose which level you want to play."""
     levels = Renderable("resources/images/levels_screen.png",
-                        Point(605/2, 455/2), ignore_cam=True)
+                        Point(605//2, 455//2), ignore_cam=True)
 
     def __init__(self):
         super(LevelPicker, self).__init__()
@@ -108,7 +108,7 @@ class LevelPicker(GameState):
             normalized = mouse.pos - left
             if (0 < normalized.y < 66 * 5 and
                     (0 < normalized.x < 56 or 136 < normalized.x < 136 + 56)):
-                level = normalized.y / 66 + 1
+                level = normalized.y // 66 + 1
                 if normalized.x > 136:
                     level += 5
                 self.next = Play('level{n}.lev'.format(n=level))
