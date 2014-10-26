@@ -1,7 +1,10 @@
 KnightNight
 ===========
 
-A simple kid's logic game
+A simple children's logic game where you must touch each tile in the level exactly once.
 
+## How to run
 
-Run this using Python 3. Dependencies: `pygame`.
+You'll need both Python 3 and pygame installed.
+
+Run by typing `python3 main.py`.
