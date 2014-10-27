@@ -15,11 +15,11 @@ TILE_STEPS = 5
 class Knight:
     """Contains the Knight entity that moves around to complete the puzzle.
     """
-    _ne = Renderable("resources/images/knight_ne.png", Point(64, 110), frames=8)
-    _se = Renderable("resources/images/knight_se.png", Point(64, 110), frames=8)
-    _nw = Renderable("resources/images/knight_nw.png", Point(64, 110), frames=8)
-    _sw = Renderable("resources/images/knight_sw.png", Point(64, 110), frames=8)
-    _renderable = _ne
+    # _ne = Renderable("resources/images/knight_ne.png", Point(64, 110), frames=8)
+    # _se = Renderable("resources/images/knight_se.png", Point(64, 110), frames=8)
+    # _nw = Renderable("resources/images/knight_nw.png", Point(64, 110), frames=8)
+    # _sw = Renderable("resources/images/knight_sw.png", Point(64, 110), frames=8)
+    # _renderable = _ne
     prev = Point(0, 0)
     target = Point(0, 0)
     move_counter = 0
@@ -41,14 +41,14 @@ class Knight:
             self.move_counter = TILE_STEPS
             # reset animation direction
             vector = self.target - self.prev
-            if vector.x == 1:
-                self._renderable = self._sw
-            elif vector.x == -1:
-                self._renderable = self._ne
-            elif vector.y == 1:
-                self._renderable = self._se
-            elif vector.y == -1:
-                self._renderable = self._nw
+            # if vector.x == 1:
+            #     self._renderable = self._sw
+            # elif vector.x == -1:
+            #     self._renderable = self._ne
+            # elif vector.y == 1:
+            #     self._renderable = self._se
+            # elif vector.y == -1:
+            #     self._renderable = self._nw
 
     def slide(self):
         self.move(self.pos + (self.pos - self.prev))
@@ -66,10 +66,6 @@ class Knight:
                 self.level()._tiles[self.target.x][self.target.y].on_enter(self)
         pos = iso_to_screen(self.pos)
         SCREEN.camera = SCREEN.center - pos
-
-    def render(self):
-        """Renders the knight to the screen at his current location."""
-        self._renderable.render(iso_to_screen(self.pos))
 
 
 class Level:
@@ -119,11 +115,11 @@ class Level:
                 if tile.prevents_win:
                     return False
         return True
-
-    def render(self):
-        """Render the whole array of tiles and entities."""
-        for i, row in enumerate(self._tiles):
-            for j, tile in enumerate(row):
-                tile.render(iso_to_screen(Point(i, j)))
-                if self.knight.pos.round() == Point(i, j):
-                    self.knight.render()
+    #
+    # def render(self):
+    #     """Render the whole array of tiles and entities."""
+    #     for i, row in enumerate(self._tiles):
+    #         for j, tile in enumerate(row):
+    #             tile.render(iso_to_screen(Point(i, j)))
+    #             if self.knight.pos.round() == Point(i, j):
+    #                 self.knight.render()

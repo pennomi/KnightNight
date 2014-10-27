@@ -18,13 +18,14 @@ def memoize_renderable(cls):
         return instances[key]
     return getinstance
 
+
 # TODO: Use __new__ instead?
 @memoize_renderable
 class Renderable:
     """A basic sprite class that handles rendering an image to the screen."""
     def __init__(self, filepath, offset, ignore_cam=False, frames=1,
                  frame_duration=2):
-        self._image = pygame.image.load(filepath).convert_alpha()
+        # self._image = pygame.image.load(filepath).convert_alpha()
         self.offset = offset
         self.ignore_cam = ignore_cam
         self._screen = SCREEN

@@ -1,3 +1,5 @@
 .idea
 *.pyc
 dist/
+*.blend1
+*.blend2
