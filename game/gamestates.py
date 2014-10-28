@@ -2,6 +2,8 @@
 class.
 """
 from direct.actor.Actor import Actor
+from panda3d.core import CollisionNode, GeomNode, CollisionRay, \
+    CollisionTraverser, CollisionHandlerQueue
 from game.renderable import Renderable
 from game.screen import SCREEN
 from game.utils import Point
@@ -43,6 +45,17 @@ class Play(GameState):
 
         # Panda Init
 
+        self.traverser = CollisionTraverser('Picker')
+        base.cTrav = self.traverser
+        self.collision_queue = CollisionHandlerQueue()
+
+        picker_node = CollisionNode('mouseRay')
+        picker_np = camera.attachNewNode(picker_node)
+        picker_node.setFromCollideMask(GeomNode.getDefaultCollideMask())
+        self.picker_ray = CollisionRay()
+        picker_node.addSolid(self.picker_ray)
+        self.traverser.addCollider(picker_np, self.collision_queue)
+
         # Load the level model from the tileset
         self.level_model = render.attachNewNode("Tile Supernode")
         self.level_model.setPos(0, 0, 0)
@@ -55,9 +68,14 @@ class Play(GameState):
                 # TODO: tile instancing?
                 # TODO: flatten_strong on zones
                 # TODO: think of a nice data structure for this...
+
                 #self.space.tiles.append(Tile(x, y, collision_type=int(tile_id)))
                 tile_model = loader.loadModel("resources/models/SimpleTile.egg")
                 tile_model.setPos(x, y, 0)
+
+                # Cheating, but whatever
+                tile_model.setTag('myObjectTag', str(x*100 + y))
+
                 # tile_model.setScale(1.)
                 tile_model.reparentTo(self.level_model)
                 self.tile_models.append(tile_model)
@@ -76,6 +94,26 @@ class Play(GameState):
         self.knight_model.setScale(0.5)
         self.knight_model.reparentTo(self.level_model)
         self.knight_model.setPos(self.level.knight.pos.x, self.level.knight.pos.y, 0)
+
+    def handle_mouse(self):
+        # First we check that the mouse is not outside the screen.
+        if base.mouseWatcherNode.hasMouse():
+            # This gives up the screen coordinates of the mouse.
+            mpos = base.mouseWatcherNode.getMouse()
+
+            # This makes the ray's origin the camera and makes the ray point
+            # to the screen coordinates of the mouse.
+            self.picker_ray.setFromLens(base.camNode, mpos.getX(), mpos.getY())
+
+            # TODO: for some reason this happens on the NEXT click
+            # only care about the closest hit
+            self.collision_queue.sortEntries()
+            if not self.collision_queue.getNumEntries():
+                return
+
+            # get collision tag
+            obj = self.collision_queue.getEntry(0).getIntoNodePath()
+            print(obj.getNetTag('myObjectTag'))
 
     def logic(self, dt):
         # if mouse.clicked:

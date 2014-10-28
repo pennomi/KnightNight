@@ -29,6 +29,9 @@ class MainApp(ShowBase):
         #self.state = gamestates.Title()
         self.state = gamestates.Play('level1.lev')
 
+        # Input
+        self.accept('mouse1', self.state.handle_mouse)
+
         # TODO: Move this to the appropriate gamestate
         self.build_lighting()
 
