@@ -24,10 +24,11 @@ class MainApp(ShowBase):
         self.controller_input = ControllerInput()
         self.taskMgr.add(self.update, "update")
         base.setFrameRateMeter(True)
+        base.disableMouse()
 
         # Game-specific init
         #self.state = gamestates.Title()
-        self.state = gamestates.Play('level1.lev')
+        self.state = gamestates.Play('level2.lev')
 
         # Input
         self.accept('mouse1', self.state.handle_mouse)
@@ -70,11 +71,14 @@ class MainApp(ShowBase):
         self.controller_input.update()
         dt = self.taskMgr.globalClock.getDt()
 
-        # logic
-        self.state.logic(dt)
         if self.state.next:
             self.state = self.state.next
         # render
         #self.state.render(dt)
+
+        # Update camera
+        kp = self.state.level.knight.pos
+        base.cam.setPos(kp.x, kp.y, 15)
+        base.cam.lookAt(self.state.level.knight.model)
 
         return Task.cont

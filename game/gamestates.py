@@ -1,14 +1,13 @@
 """Holds the logic for each of the game's states. These all inherit from a base
 class.
 """
-from direct.actor.Actor import Actor
-from panda3d.core import CollisionNode, GeomNode, CollisionRay, \
-    CollisionTraverser, CollisionHandlerQueue
+from panda3d.core import CollisionTraverser, CollisionHandlerQueue, \
+    CollisionNode, GeomNode, CollisionRay
 from game.renderable import Renderable
 from game.screen import SCREEN
 from game.utils import Point
 from game.level import Level
-from game.tileset import Tileset, TILE_CENTER, IceTile, WallTile
+from game.tileset import Tileset
 
 
 class GameState(object):
@@ -18,84 +17,29 @@ class GameState(object):
     def __init__(self):
         pass
 
-    def logic(self, dt):
-        """Called once a frame to handle logic."""
-        raise NotImplementedError("GameState must implement method 'logic'")
-
-    def render(self, dt):
-        """Called once a frame to handle rendering."""
-        raise NotImplementedError("GameState must implement method 'render'")
-
 
 class Play(GameState):
     """The GameState while actually playing a level."""
-    highlight = Renderable("resources/images/highlight.png", TILE_CENTER)
-    win = Renderable("resources/images/cleared_screen.png",
-                     Point(605/2, 455/2), ignore_cam=True)
-    restart = Renderable("resources/images/restart_button.png",
-                         Point(100, 0), ignore_cam=True)
-    levels = Renderable("resources/images/levels_button.png",
-                        Point(0, 0), ignore_cam=True)
-
     def __init__(self, filepath):
         super(Play, self).__init__()
         self.filepath = filepath
         tileset = Tileset('resources/tileset/default.tset')
         self.level = Level(tileset, filepath)
 
-        # Panda Init
-
+        # Mouse Picking
         self.traverser = CollisionTraverser('Picker')
         base.cTrav = self.traverser
         self.collision_queue = CollisionHandlerQueue()
 
         picker_node = CollisionNode('mouseRay')
-        picker_np = camera.attachNewNode(picker_node)
+        picker_np = base.cam.attachNewNode(picker_node)
         picker_node.setFromCollideMask(GeomNode.getDefaultCollideMask())
         self.picker_ray = CollisionRay()
         picker_node.addSolid(self.picker_ray)
         self.traverser.addCollider(picker_np, self.collision_queue)
 
-        # Load the level model from the tileset
-        self.level_model = render.attachNewNode("Tile Supernode")
-        self.level_model.setPos(0, 0, 0)
-
-        # Load Tile Map
-        # TODO: Move this stuff into the tileset and level files
-        self.tile_models = []
-        for y, row in enumerate(reversed(self.level._tiles)):
-            for x, tile_id in enumerate(row):
-                # TODO: tile instancing?
-                # TODO: flatten_strong on zones
-                # TODO: think of a nice data structure for this...
-
-                #self.space.tiles.append(Tile(x, y, collision_type=int(tile_id)))
-                tile_model = loader.loadModel("resources/models/SimpleTile.egg")
-                tile_model.setPos(x, y, 0)
-
-                # Cheating, but whatever
-                tile_model.setTag('myObjectTag', str(x*100 + y))
-
-                # tile_model.setScale(1.)
-                tile_model.reparentTo(self.level_model)
-                self.tile_models.append(tile_model)
-                # Handle Ice
-                print(type(tile_id), tile_id)
-                if isinstance(tile_id, WallTile):
-                    tile_model.setZ(1)
-                elif isinstance(tile_id, IceTile):
-                    tile_model.setColorScale(0, 0, 1, 0.5)
-        # Don't flatten because they move independently
-        #self.level_model.flattenStrong()
-        self.knight_model = Actor("resources/models/mini_knight", {
-            'idle': 'resources/models/mini_knight-idle',
-        })
-        self.knight_model.loop('idle')
-        self.knight_model.setScale(0.5)
-        self.knight_model.reparentTo(self.level_model)
-        self.knight_model.setPos(self.level.knight.pos.x, self.level.knight.pos.y, 0)
-
     def handle_mouse(self):
+        # TODO: Why is this causing it to work one click behind?
         # First we check that the mouse is not outside the screen.
         if base.mouseWatcherNode.hasMouse():
             # This gives up the screen coordinates of the mouse.
@@ -114,37 +58,7 @@ class Play(GameState):
             # get collision tag
             obj = self.collision_queue.getEntry(0).getIntoNodePath()
             print(obj.getNetTag('myObjectTag'))
-
-    def logic(self, dt):
-        # if mouse.clicked:
-        #     scr = SCREEN.center * 2
-        #     # restart button
-        #     if (scr.x - SCREEN.camera.x - mouse.pos.x <= 100 and
-        #                 SCREEN.camera.y + mouse.pos.y <= 65):
-        #         self.next = Play(self.filepath)
-        #     # levels button
-        #     elif (SCREEN.camera.x + mouse.pos.x <= 100 and
-        #           SCREEN.camera.y + mouse.pos.y <= 65):
-        #         self.next = LevelPicker()
-        #     else:
-        #         # pass the win dialogs
-        #         if self.level.win():
-        #             if (SCREEN.center - SCREEN.camera - mouse.pos).x > 0:
-        #                 self.next = Title()
-        #             else:
-        #                 self.next = LevelPicker()
-        #         # pass the click to the level
-        #         tile = screen_to_iso(mouse.pos)
-        #         self.level.tile_clicked(tile)
-        self.level.knight.logic()
-
-    def render(self, dt):
-        self.level.render()
-        # self.highlight.render(iso_to_screen(screen_to_iso(mouse.pos)))
-        self.restart.render(Point((SCREEN.center * 2).x, 0))
-        self.levels.render(Point(0, 0))
-        if self.level.win():
-            self.win.render(SCREEN.center)
+            self.level.tile_clicked(obj.getNetTag('myObjectTag'))
 
 
 class Title(GameState):

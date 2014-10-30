@@ -3,6 +3,8 @@ iso_to_screen and screen_to_iso
 """
 import json
 from random import randint
+from panda3d.core import Vec3
+from direct.interval.LerpInterval import LerpPosInterval
 
 from game.renderable import Renderable
 from game.screen import SCREEN
@@ -37,7 +39,6 @@ def iso_to_screen(p):
 class Tile(object):
     """One tile in a tileset. Contains collision information and triggers
     for level events."""
-    _sprite = None
     walkable = True
     prevents_win = False
     teleporter_color = None
@@ -53,9 +54,9 @@ class Tile(object):
         """Trigger that is called when the Tile is exited."""
         pass
 
-    def render(self, point):
-        """Render the tile at the given point (screen coordinates)"""
-        self._sprite.render(point)
+    def update(self, dt):
+        """Update the tile"""
+        pass
 
 
 class WallTile(Tile):
@@ -91,21 +92,10 @@ class FloorTile(Tile):
 
     def on_leave(self):
         super(FloorTile, self).on_leave()
-        self.vibrate_counter = 0
-
-    def render(self, point):
-        v = self.vibrate_amount
-        if 0 <= self.vibrate_counter <= 10:
-            self.vibrate_counter += 1
-            point += Point(0 + randint(-2*v, 2*v), self.fall_pos + randint(-v, v))
-            if self.vibrate_counter == 10:
-                self.fall_pos = 0
-        if 0 <= self.fall_pos <= 100:
-            self.fall_pos += 5
-            point += Point(0 + randint(-2*v, 2*v), self.fall_pos + randint(-v, v))
-        if self.fall_pos == 100:
-            self._sprite = self._alternate
-        super(FloorTile, self).render(point)
+        print("Make it fall")
+        # TODO:
+        interval = LerpPosInterval(self.model, 5.0, self.model.getPos() - Vec3(0, 0, 10), self.model.getPos())
+        interval.start()
 
 
 class TeleporterTile(Tile):
@@ -121,10 +111,10 @@ class TeleporterTile(Tile):
     def on_enter(self, knight):
         super(TeleporterTile, self).on_enter(knight)
         corresponding_point = None
-        for i, row in enumerate(knight.level()._tiles):
+        for i, row in enumerate(knight.level._tiles):
             for j, tile in enumerate(row):
                 if (tile.teleporter_color == self.teleporter_color and
-                    Point(i, j) != knight.target):
+                        Point(i, j) != knight.target):
                     corresponding_point = Point(i, j)
         knight.teleport(corresponding_point)
 

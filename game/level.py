@@ -2,53 +2,46 @@
 
 from copy import copy
 import weakref
+from direct.actor.Actor import Actor
+from panda3d.core import CollisionTraverser, CollisionHandlerQueue, \
+    CollisionNode, GeomNode, CollisionRay
 
 from game.utils import Point
-from game.renderable import Renderable
 from game.screen import SCREEN
-from game.tileset import iso_to_screen
+from game.tileset import iso_to_screen, WallTile, IceTile
 
 
 TILE_STEPS = 5
 
 
 class Knight:
-    """Contains the Knight entity that moves around to complete the puzzle.
+    """The player's avatar, which moves around to complete the puzzle.
     """
-    # _ne = Renderable("resources/images/knight_ne.png", Point(64, 110), frames=8)
-    # _se = Renderable("resources/images/knight_se.png", Point(64, 110), frames=8)
-    # _nw = Renderable("resources/images/knight_nw.png", Point(64, 110), frames=8)
-    # _sw = Renderable("resources/images/knight_sw.png", Point(64, 110), frames=8)
-    # _renderable = _ne
     prev = Point(0, 0)
-    target = Point(0, 0)
     move_counter = 0
 
     def __init__(self, level, start_point):
-        self.level = weakref.ref(level)
+        self.level = weakref.proxy(level)
         self.pos = start_point
-        self.target = start_point
-        level._tiles[self.target.x][self.target.y].on_enter(self)
+
+        self.level._tiles[self.pos.x][self.pos.y].on_enter(self)
+
+        self.model = Actor("resources/models/mini_knight", {
+            'idle': 'resources/models/mini_knight-idle',
+        })
+        self.model.loop('idle')
+        self.model.setScale(0.5)
+        self.model.reparentTo(self.level.model)
+        self.model.setPos(self.pos.x, self.pos.y, 0)
 
     def move(self, point):
-        point = point.round()
         # perform the move
-        level = self.level()
-        if not self.move_counter and level.is_legal(point):
+        if self.level.is_legal(point):
             self.prev = self.pos.round()
-            level._tiles[self.prev.x][self.prev.y].on_leave()
-            self.target = point.round()
-            self.move_counter = TILE_STEPS
-            # reset animation direction
-            vector = self.target - self.prev
-            # if vector.x == 1:
-            #     self._renderable = self._sw
-            # elif vector.x == -1:
-            #     self._renderable = self._ne
-            # elif vector.y == 1:
-            #     self._renderable = self._se
-            # elif vector.y == -1:
-            #     self._renderable = self._nw
+            self.level._tiles[self.prev.x][self.prev.y].on_leave()
+            self.pos = point.round()
+            self.model.setPos(self.pos.x, self.pos.y, 0)
+            self.level._tiles[self.pos.x][self.pos.y].on_enter(self)
 
     def slide(self):
         self.move(self.pos + (self.pos - self.prev))
@@ -56,16 +49,7 @@ class Knight:
     def teleport(self, target):
         # TODO: Animate
         self.pos = target
-        self.target = target
-
-    def logic(self):
-        if self.move_counter:
-            self.move_counter -= 1
-            self.pos += ((self.target - self.prev) * (1.0 / TILE_STEPS))
-            if not self.move_counter:
-                self.level()._tiles[self.target.x][self.target.y].on_enter(self)
-        pos = iso_to_screen(self.pos)
-        SCREEN.camera = SCREEN.center - pos
+        self.model.setPos(self.pos.x, self.pos.y, 0)
 
 
 class Level:
@@ -86,21 +70,60 @@ class Level:
             for j, tile in enumerate(row.strip(' \r\n,').split(',')):
                 if tile == '0':
                     start_point = Point(i, j)
-        # player
+
+
+        # Panda Stuff
+        # Load the level model from the tileset
+        self.model = render.attachNewNode("Tile Supernode")
+        self.model.setPos(0, 0, 0)
+
+        # Load Tile Map
+        # TODO: Move this stuff into the tileset and level files
+        for x, row in enumerate(self._tiles):
+            for y, tile in enumerate(row):
+                # TODO: tile instancing?
+                # TODO: flatten_strong on zones
+                # TODO: think of a nice data structure for this...
+                print(tile)
+
+                tile.model = loader.loadModel("resources/models/SimpleTile.egg")
+                tile.model.setPos(x, y, 0)
+
+                # Cheating, but whatever
+                tile.model.setTag('myObjectTag', str(x*100 + y))
+
+                # tile.model.setScale(1.)
+                tile.model.reparentTo(self.model)
+
+                # Handle Walls and Ice
+                if isinstance(tile, WallTile):
+                    tile.model.setZ(1)
+                elif isinstance(tile, IceTile):
+                    tile.model.setColorScale(0, 0, 1, 0.5)
+        # Don't flatten because they move independently
+        #self.model.flattenStrong()
+
+        # Initialize the player
         self.knight = Knight(self, start_point)
         SCREEN.camera = SCREEN.center - iso_to_screen(start_point)
 
-    def tile_clicked(self, tile):
+    def tile_clicked(self, coordinates):
         """The logic that handles what happens when a tile is clicked."""
-        self.knight.move(tile)
+        try:
+            coordinates = int(coordinates)
+            coordinates = Point(coordinates // 100,
+                                coordinates - coordinates // 100 * 100)
+            self.knight.move(coordinates)
+        except ValueError:
+            print("What you clicked on wasn't a tile.")
 
     def is_legal(self, point):
         """True if the tile at point is possible for the knight to move into.
         """
         p = point.round()
         try:
-            return (abs(p.x - self.knight.target.x) +
-                    abs(p.y - self.knight.target.y) == 1 and
+            return (abs(p.x - self.knight.pos.x) +
+                    abs(p.y - self.knight.pos.y) == 1 and
                     self._tiles[p.x][p.y].walkable)
         except IndexError:
             return False
@@ -115,11 +138,8 @@ class Level:
                 if tile.prevents_win:
                     return False
         return True
-    #
-    # def render(self):
-    #     """Render the whole array of tiles and entities."""
-    #     for i, row in enumerate(self._tiles):
-    #         for j, tile in enumerate(row):
-    #             tile.render(iso_to_screen(Point(i, j)))
-    #             if self.knight.pos.round() == Point(i, j):
-    #                 self.knight.render()
+
+    def update(self, dt):
+        for row in self._tiles:
+            for tile in row:
+                tile.update(dt)
